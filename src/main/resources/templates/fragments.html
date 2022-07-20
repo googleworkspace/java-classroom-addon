@@ -1,0 +1,47 @@
+<!-- Copyright 2022 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+
+     https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License. -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<!-- Header thymeleaf fragment -->
+<head th:fragment="html_head">
+  <meta charset="utf-8">
+  <title>Classroom Add-on Example</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+  <link rel="stylesheet" href="base-style.css">
+  <script src="scripts/addon-utils.js"></script>
+</head>
+
+<body>
+
+<!-- Navbar thymeleaf fragment -->
+<div th:fragment="navbar">
+    <ul>
+      <li>
+        <a href="addon-discovery.html">Home page</a>
+      </li>
+      <li style="float:right">
+        <a style="background-color: #4285f4" href="#">Login Placeholder</a>
+      </li>
+    </ul>
+</div>
+
+<!-- Title content thymeleaf fragment -->
+<div th:fragment="pagetext(title, subtitle)" class="container">
+  <h3 th:text="${title}"></h3>
+  <strong th:text="${subtitle}"></strong>
+</div>
+
+</body>
+</html>
