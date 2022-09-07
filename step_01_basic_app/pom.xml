@@ -4,21 +4,16 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.7.1</version>
-    <relativePath/>
+    <groupId>com.addons</groupId>
+    <artifactId>spring</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath> <!-- lookup parent from repository -->
   </parent>
-  <modules>
-    <module>step_01_basic_app</module>
-    <module>step_02_sign_in</module>
-  </modules>
-  <groupId>com.addons</groupId>
-  <artifactId>spring</artifactId>
+  <groupId>com.example</groupId>
+  <artifactId>basic_app</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>spring</name>
-  <description>spring</description>
+  <name>basic_app</name>
+  <description>basic_app</description>
   <properties>
     <java.version>11</java.version>
   </properties>
@@ -27,21 +22,21 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-thymeleaf</artifactId>
+      <version>2.3.3.RELEASE</version>
+    </dependency>
   </dependencies>
+
   <build>
     <plugins>
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>
-              <groupId>org.projectlombok</groupId>
-              <artifactId>lombok</artifactId>
-            </exclude>
-          </excludes>
-        </configuration>
       </plugin>
     </plugins>
   </build>
+
 </project>

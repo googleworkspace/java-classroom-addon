@@ -4,7 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 .DS_Store
-secrets/
+src/main/resources/*.p12
 
 ### STS ###
 .apt_generated

@@ -18,7 +18,9 @@ Requirements
 Project Setup
 ------------
 
-1. Create a [Google Cloud Platform (GCP) project](https://console.cloud.google.com/projectcreate).
+1. Install [Java 11+](https://adoptopenjdk.net/).
+
+2. Create a [Google Cloud Platform (GCP) project](https://console.cloud.google.com/projectcreate).
 Enable the following in the API Library:
     *   [Google Workspace Marketplace (GWM) SDK](https://console.cloud.google.com/apis/library/appsmarket-component.googleapis.com)
     *   [Google Classroom API](https://console.cloud.google.com/apis/library/classroom.googleapis.com)
@@ -28,8 +30,13 @@ Enable the following in the API Library:
     for configuration instructions for the GWM SDK. You will also need to
     [install the add-on](https://developers.google.com/classroom/eap/add-ons-alpha/creating-simple-add-on#visit_the_unlisted_url_for_your_add-on_to_install_it)
     for it to be visible in Google Classroom.
+3. Clone this repository:
 
-2. Visit your project's [Credentials](https://console.cloud.google.com/apis/credentials) page. Create two credentials in the project:
+     ```posix-terminal
+     git clone https://github.com/<org>/<repo>/
+     ```
+
+4. Visit your project's [Credentials](https://console.cloud.google.com/apis/credentials) page. Create two credentials in the project:
     *   An **API Key**. You can leave it as **Unrestricted** for the purposes of these examples.
     *   An **OAuth client ID**.
         *   The application type should be **Web application**.
@@ -37,27 +44,17 @@ Enable the following in the API Library:
         `https://localhost:5000/callback`
 
     Return to the Credentials page once both have been created, then:
-      *   Copy your **API Key** and assign it to the environment variable `GOOGLE_API_KEY`:
-          ```shell
-          export GOOGLE_API_KEY=<YOUR_COPIED_API_KEY>
-          ```
-      *   Download the **OAuth2 client credentials** as JSON.
+      * Download the **OAuth2 client credentials** as JSON. The credentials file will not be used for the
+        first step, the `step_01_basic_app` module. For all other steps or modules, place the `client_secret.json`
+        file in the the `src/main/resources` directory of the module. You may have to rename the file to
+        `client_secret.json` if it downloaded as a different name. If you change the name or location of
+        the file, ensure that you update the `CLIENT_SECRET_FILE` variable in the `AuthService.java` file
+        accordingly. Ensure that the `client_secret.json` file path is added to the `.gitignore` directory
+        of the current module as to not include it in a remote repository.
 
-3. Install [Java 11+](https://adoptopenjdk.net/).
-
-4. Clone this repository:
-
-    ```posix-terminal
-    git clone https://github.com/<org>/<repo>/
-    ```
-
-5. Open the project in an IDE that supports Spring applications. Some popular IDEs include IntelliJ or Eclipse.
-This project uses Maven to build the project and manage dependencies, and includes the Maven wrapper
-that will ensure a successful build without needing to install Maven itself. The project includes two executables:
-`mvnw` for Unix and `mvnw.cmd` for Windows. Running `./mvnw --version` on Unix will display the Apache Maven
-version among other information. The `pom.xml` file defines the project's dependencies needed to run the application.
-One of the dependencies this project uses is Thymeleaf which limits repetitive code across HTML files through the
-use of fragments.
+5. The walkthroughs are organized in modules. Each module represents a different step in the walkthrough, and each
+   module manages and handles its own dependencies through the `pom.xml` file. The `pom.xml` file in the parent
+   directory defines the modules contained in this project
 
 6. To test the add-on within the Classroom add-on iframe, you will need to run the application server with SSL encryption.
 We recommend using [mkcert](https://github.com/FiloSottile/mkcert) to generate keys for `localhost` if you would like to
@@ -69,29 +66,73 @@ host the server on your local machine. Use the following commands to generate a 
     mkcert -pkcs12 -p12-file <path_to_keystore> <domain_name>
     ```
 
-    As an example, the `path_to_keystore` can be `src/main/resources/<name_of_keystore>`. The domain name is 
-    the domain you will be running the project on (for example, `localhost`). Then, in `application.properties`,
-    set `server.ssl.key-store=<path_to_keystore>` where the `path_to_keystore` is the path you included when
-    running the second mkcert command above.
+    You may store the keystore file in the parent directory or within the modules themselves. For convenience, storing
+the keystore file in the parent directory might be simpler to manage. Another option is to store the keystore file in
+the modules themselves to further separate the modules as their own applications. Wherever you create and store the
+keystore file, update the `application.properties` `server.ssl.key-store=<PATH_TO_KEYSTORE>` property for the specific
+module that you would like to run with the relative path to the keystore. For example, if you create the keystore file
+in the parent directory, update application.properties to `server.ssl.key-store=../keystore-file-name.p12`. Ensure that
+you add the path to the keystore in the parent directory's `.gitignore` or the module's `.gitignore` to make sure it is not
+accidentally pushed to a remote repository. Lastly, the `domain_name` in the mkcert command above is the domain you will
+be running the project on (for example, `localhost`).
 
-7. Launch the server by running the `main` method in the `Application.java` file. In IntelliJ, for example, you
-can either right-click `Application.java` > `Run 'Application'` in the `src/main/java/com/addons/spring` directory
-or open the `Application.java` file to click on the green arrow to the left of the `main(String[] args)` method
-signature. Alternatively, you can run the project in a terminal window:
+7. This project uses Maven to build the project and manage dependencies, and includes the Maven wrapper that will
+ensure a successful build without needing to install Maven itself. The project includes two executables:
+`mvnw` for Unix and `mvnw.cmd` for Windows. Running `./mvnw --version` on Unix will display the Apache Maven version
+among other information.
 
-    ```posix-terminal
-    ./mvnw spring-boot:run
-    ```
+Run the project
+------------
+You can run the project through the IDE of your choice. You can also run the project in a terminal window.
+Open a terminal window and run the app from the directory of the module you would like to run. 
+   1. To run the `step_01_basic_app` walkthrough, navigate to the `step_01_basic_app` directory:
 
-   or on Windows:
+       ```posix-terminal
+       cd `step_01_basic_app`
+       ```
 
-    ```posix-terminal
-    mvnw.cmd spring-boot:run
-    ```
+       Ensure that you have updated `application.properties` with the path to the keystore file. Then, run the following
+       command on Unix:
 
-    This will launch the server at `https://localhost:5000` or at the port you specified in `application.properties`.
+       ```posix-terminal
+       ./mvnw spring-boot:run
+       ``` 
 
-8. To load the application, either open the app in your browser or select the app in the **Add-ons** menu when creating
+       or on Windows:
+
+       ```posix-terminal
+       mvnw.cmd spring-boot:run
+       ```
+       This will launch the server at `https://localhost:5000` or at the port you specified in `application.properties`.
+
+
+   2. To run the `step_02_sign_in` walkthrough, navigate to the `step_02_sign_in` directory:
+       ```posix-terminal
+       cd `step_02_sign_in`
+       ```
+
+      Ensure that you have:
+      1. Updated `application.properties` with the path to the keystore file.
+      2. Put the `client_secret.json` file in the `src/main/resources/` directory so it can be read
+      in the `AuthService.java` file.
+      3. Updated the `REDIRECT_URI` variable in the `AuthService.java` file to the redirect URI you
+      specified in GCP (for example, `https://localhost:5000/callback`).
+      4. Updated `AuthController.java` `/callback` endpoint to match your redirect URI.
+
+      Then, run the following command:
+
+      ```posix-terminal
+      ./mvnw spring-boot:run
+      ``` 
+
+      or on Windows:
+
+      ```posix-terminal
+      mvnw.cmd spring-boot:run
+      ```
+      This will launch the server at `https://localhost:5000` or at the port you specified in `application.properties`.
+
+   3. To load the application, either open the app in your browser or select the app in the **Add-ons** menu when creating
 an Assignment in [Google Classroom](https://classroom.google.com).
 
 Useful Resources
