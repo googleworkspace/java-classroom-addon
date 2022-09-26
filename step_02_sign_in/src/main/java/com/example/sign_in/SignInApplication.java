@@ -7,6 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class SignInApplication {
 
+  /** Note that if you stop and re-start the server, any attributes stored in the session will be
+   * cleared. */
   public static void main(String[] args) {
     SpringApplication.run(SignInApplication.class, args);
   }

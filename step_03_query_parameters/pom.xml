@@ -10,10 +10,10 @@
     <relativePath>../pom.xml</relativePath> <!-- lookup parent from repository -->
   </parent>
   <groupId>com.example</groupId>
-  <artifactId>basic_app</artifactId>
+  <artifactId>step_03_query_parameters</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>basic_app</name>
-  <description>basic_app</description>
+  <name>step_03_query_parameters</name>
+  <description>step_03_query_parameters</description>
   <properties>
     <java.version>11</java.version>
   </properties>

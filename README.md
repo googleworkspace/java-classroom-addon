@@ -46,15 +46,15 @@ Enable the following in the API Library:
     Return to the Credentials page once both have been created, then:
       * Download the **OAuth2 client credentials** as JSON. The credentials file will not be used for the
         first step, the `step_01_basic_app` module. For all other steps or modules, place the `client_secret.json`
-        file in the the `src/main/resources` directory of the module. You may have to rename the file to
-        `client_secret.json` if it downloaded as a different name. If you change the name or location of
-        the file, ensure that you update the `CLIENT_SECRET_FILE` variable in the `AuthService.java` file
-        accordingly. Ensure that the `client_secret.json` file path is added to the `.gitignore` directory
-        of the current module as to not include it in a remote repository.
+        file in the `src/main/resources` directory of the module. You may have to rename the file to
+        `client_secret.json` if it downloaded as a different name.
+      * If you change the name or location of the file, ensure that you update the `CLIENT_SECRET_FILE` variable in the
+        `AuthService.java` file  accordingly. We have already included the `client_secret.json` file path in the `.gitignore`
+        of the top level directory, but if you change place it in a different location than the one specified, please update
+        the `.gitignore` accordingly.
 
-5. The walkthroughs are organized in modules. Each module represents a different step in the walkthrough, and each
-   module manages and handles its own dependencies through the `pom.xml` file. The `pom.xml` file in the parent
-   directory defines the modules contained in this project
+5. The walkthroughs are organized in modules. Each module represents a different step in the walkthrough. The `pom.xml`
+   in the parent directory defines the modules contained in this project and the various dependencies needed for the modules.
 
 6. To test the add-on within the Classroom add-on iframe, you will need to run the application server with SSL encryption.
 We recommend using [mkcert](https://github.com/FiloSottile/mkcert) to generate keys for `localhost` if you would like to
@@ -72,7 +72,7 @@ the modules themselves to further separate the modules as their own applications
 keystore file, update the `application.properties` `server.ssl.key-store=<PATH_TO_KEYSTORE>` property for the specific
 module that you would like to run with the relative path to the keystore. For example, if you create the keystore file
 in the parent directory, update application.properties to `server.ssl.key-store=../keystore-file-name.p12`. Ensure that
-you add the path to the keystore in the parent directory's `.gitignore` or the module's `.gitignore` to make sure it is not
+you add the path to the keystore in the top level directory's `.gitignore` to make sure it is not
 accidentally pushed to a remote repository. Lastly, the `domain_name` in the mkcert command above is the domain you will
 be running the project on (for example, `localhost`).
 
@@ -81,58 +81,59 @@ ensure a successful build without needing to install Maven itself. The project i
 `mvnw` for Unix and `mvnw.cmd` for Windows. Running `./mvnw --version` on Unix will display the Apache Maven version
 among other information.
 
-Run the project
+Run the Project
 ------------
 You can run the project through the IDE of your choice. You can also run the project in a terminal window.
-Open a terminal window and run the app from the directory of the module you would like to run. 
-   1. To run the `step_01_basic_app` walkthrough, navigate to the `step_01_basic_app` directory:
+Open a terminal window and run the app from the directory of the module you would like to run. In order to run the
+project, the modules will need to be configured appropriately.
 
-       ```posix-terminal
-       cd `step_01_basic_app`
-       ```
+I. Set up the `step_01_basic_app` walkthrough. Navigate to the `step_01_basic_app` directory and ensure that you have
+updated `application.properties` with the path to the keystore file described in Step 6 of the Project Setup section
+of this README file.
 
-       Ensure that you have updated `application.properties` with the path to the keystore file. Then, run the following
-       command on Unix:
+II. Set up the `step_02_sign_in` walkthrough by ensuring that you have:
+1. Updated `application.properties` with the path to the keystore file described in Step 6 of the Project Setup section
+of this README file. Ensure that you add the path to the keystore in the top level directory's `.gitignore` to make sure
+it is not accidentally pushed to a remote repository.
+2. Put the `client_secret.json` file in the `src/main/resources/` directory so it can be read in the `AuthService.java` file.
+_Ensure that the path to the client secret file is in the top level directory's `.gitignore` so that you do not accidentally
+push your client secrets to a remote repository._
+3. Updated the `REDIRECT_URI` variable in the `AuthService.java` file to the redirect URI you
+specified in GCP (for example, `https://localhost:5000/callback`).
+4. Updated `AuthController.java` `/callback` endpoint to match your redirect URI.
 
-       ```posix-terminal
-       ./mvnw spring-boot:run
-       ``` 
+III. Set up the `step_03_query_parameters` walkthrough by ensuring that you have:
+1. Updated `application.properties` with the path to the keystore file. Ensure that you add the path to the keystore in the
+top level directory's `.gitignore` to make sure it is not accidentally pushed to a remote repository.
+2. Put the `client_secret.json` file in the `src/main/resources/` directory so it can be read in the `AuthService.java` file.
+_Ensure that the path to the client secret file is in the top level directory's `.gitignore` so that you do not accidentally
+push your client secrets to a remote repository._
+3. Updated the `REDIRECT_URI` variable in the `AuthService.java` file to the redirect URI you
+specified in GCP (for example, `https://localhost:5000/callback`).
+4. Updated `AuthController.java` `/callback` endpoint to match your redirect URI.
+5. Updated `application.properties` with values for `spring.datasource.username` and `spring.datasource.password`.
+Make sure to update these fields before you run the application. This application uses an H2 database
+that is generated when the application is run.  If you change the values for username and password in `application.properties`
+and stop and re-run the app, an error will be thrown. To set new values for the username and password, delete the
+folder that is generated at the path specified in `spring.datasource.url` and re-run the app with the new username
+and password values set.
 
-       or on Windows:
+To run a specific module, run the following command on Unix:
 
-       ```posix-terminal
-       mvnw.cmd spring-boot:run
-       ```
-       This will launch the server at `https://localhost:5000` or at the port you specified in `application.properties`.
+   ```posix-terminal
+   ./mvnw spring-boot:run -pl <module_name>
+   ``` 
 
+or on Windows:
 
-   2. To run the `step_02_sign_in` walkthrough, navigate to the `step_02_sign_in` directory:
-       ```posix-terminal
-       cd `step_02_sign_in`
-       ```
+   ```posix-terminal
+   cd <module>
+   mvnw.cmd spring-boot:run
+   ```
+This will launch the server at `https://localhost:5000` or at the port you specified in `application.properties`.
+Note that if you stop and re-start the server, any attributes stored in the session will be cleared.
 
-      Ensure that you have:
-      1. Updated `application.properties` with the path to the keystore file.
-      2. Put the `client_secret.json` file in the `src/main/resources/` directory so it can be read
-      in the `AuthService.java` file.
-      3. Updated the `REDIRECT_URI` variable in the `AuthService.java` file to the redirect URI you
-      specified in GCP (for example, `https://localhost:5000/callback`).
-      4. Updated `AuthController.java` `/callback` endpoint to match your redirect URI.
-
-      Then, run the following command:
-
-      ```posix-terminal
-      ./mvnw spring-boot:run
-      ``` 
-
-      or on Windows:
-
-      ```posix-terminal
-      mvnw.cmd spring-boot:run
-      ```
-      This will launch the server at `https://localhost:5000` or at the port you specified in `application.properties`.
-
-   3. To load the application, either open the app in your browser or select the app in the **Add-ons** menu when creating
+To load the application, either open the app in your browser or select the app in the **Add-ons** menu when creating
 an Assignment in [Google Classroom](https://classroom.google.com).
 
 Useful Resources

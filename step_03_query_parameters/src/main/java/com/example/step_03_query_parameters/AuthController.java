@@ -11,11 +11,12 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 // License for the specific language governing permissions and limitations under
 // the License.
-package com.example.sign_in;
+package com.example.step_03_query_parameters;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.services.oauth2.model.Userinfo;
 import java.util.HashMap;
+import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -29,14 +30,19 @@ public class AuthController {
   /** Declare AuthService to be used in the Controller class constructor. */
   private final AuthService authService;
 
-  /** AuthController constructor. Uses constructor injection to instantiate
-   * the AuthService and UserRepository classes.
-   * @param authService the service class that handles the implementation logic
-   * of requests.
+  /** Declare UserRepository to be used in the Controller class constructor. */
+  private final UserRepository userRepository;
+
+  /** AuthController constructor. Uses constructor injection to instantiate the AuthService and
+   * UserRepository classes.
+   * @param authService the service class that handles the implementation logic of requests.
+   * @param userRepository the class that interacts with User objects stored in persistent storage.
    */
-  public AuthController(AuthService authService) {
+  public AuthController(AuthService authService, UserRepository userRepository) {
     this.authService = authService;
+    this.userRepository = userRepository;
   }
+
   /** Returns the index page that will be displayed when the add-on opens in a new tab.
    * @param model the Model interface used to display information on the error page.
    * @return the index page template if successful, or the onError function to handle and display
@@ -68,6 +74,7 @@ public class AuthController {
 
   /** Returns the add-on discovery or auth page that will be displayed when the iframe is first
    * opened in Classroom.
+   * @param request the current request used to obtain the login_hint or hd query parameter.
    * @param session the current session.
    * @param model the Model interface used to display information on the error page.
    * @return the authorization page if the session does not exist or the credentials attribute is
@@ -75,26 +82,71 @@ public class AuthController {
    * or the onError function to handle and display the error message.
    */
   @GetMapping(value = {"/addon-discovery"})
-  public String addon_discovery(HttpSession session, Model model) {
+  public String addon_discovery(HttpServletRequest request, HttpSession session, Model model) {
     try {
-      if (session == null || session.getAttribute("credentials") == null) {
+      /** Retrieve the login_hint or hd query parameters from the request URL. */
+      String login_hint = request.getParameter("login_hint");
+      String hd = request.getParameter("hd");
+
+      /** If neither query parameter is available, use the values in the session. */
+      if (login_hint == null && hd == null) {
+        login_hint = (String) session.getAttribute("login_hint");
+        hd = (String) session.getAttribute("hd");
+      }
+
+      /** If the hd query parameter is provided, add hd to the session and route the user to the
+       * authorization page. */
+      else if (hd != null) {
+        session.setAttribute("hd", hd);
         return startAuthFlow(model);
       }
+
+      /** If the login_hint query parameter is provided, add it to the session. */
+      else if (login_hint != null) {
+        session.setAttribute("login_hint", login_hint);
+      }
+
+      /** Check if the credentials exist in the session. The session could have been cleared when
+       * the user clicked the Sign-Out button, and the expected behavior after sign-out would be to
+       * display the sign-in page when the iframe is opened again. */
+      if (session.getAttribute("credentials") == null) {
+        return startAuthFlow(model);
+      }
+
+      /** At this point, we know that credentials exist in the session, but we should update the
+       * session credentials with the credentials in persistent storage in case they were refreshed.
+       * If the credentials in persistent storage are null, we should navigate the user to the
+       * authorization flow to obtain persisted credentials.
+       */
+      User storedUser = getUser(login_hint);
+      if (storedUser != null) {
+        Credential credential = authService.loadFromCredentialDataStore(login_hint);
+        if (credential != null) {
+          session.setAttribute("credentials", credential);
+        } else {
+          return startAuthFlow(model);
+        }
+      }
+
+      /** Finally, if there are credentials in the session and in persistent storage, direct the
+       * user to the addon-discovery page. */
       return "addon-discovery";
     } catch (Exception e) {
       return onError(e.getMessage(), model);
     }
   }
 
-  /** Redirects the sign-in pop-up to the authorization url.
+  /** Redirects the sign-in pop-up to the authorization URL.
    * @param response the response object used to redirect the client to the authorization URL.
    * @param session the current session.
-   * @throws Exception if redirection to the authorization url is unsuccessful.
+   * @throws Exception if redirection to the authorization URL is unsuccessful.
    */
   @GetMapping(value = {"/authorize"})
   public void authorize(HttpServletResponse response, HttpSession session) throws Exception {
     try {
-      HashMap authDataMap = authService.authorize();
+      String login_hint = (String) session.getAttribute("login_hint");
+      String hd = (String) session.getAttribute("hd");
+      HashMap authDataMap = authService.authorize(login_hint, hd);
       String authUrl = authDataMap.get("url").toString();
       String state = authDataMap.get("state").toString();
       session.setAttribute("state", state);
@@ -128,6 +180,11 @@ public class AuthController {
 
       Credential credentials = authService.getAndSaveCredentials(authCode);
       session.setAttribute("credentials", credentials);
+
+      /** This is the end of the auth flow. We should save user info to the database. */
+      Userinfo userinfo = authService.getUserInfo(credentials);
+      saveUser(credentials, userinfo, session);
+
       return "close-pop-up";
     } catch (Exception e) {
       return onError(e.getMessage(), model);
@@ -151,6 +208,9 @@ public class AuthController {
       } else {
         return onError("Could not get user email.", model);
       }
+
+      /** Save credentials in case access token was refreshed. */
+      saveUser(credentials, null, session);
       return "test";
     } catch (Exception e) {
       return onError(e.getMessage(), model);
@@ -197,7 +257,7 @@ public class AuthController {
       }
       return startAuthFlow(model);
     } catch (Exception e) {
-      return onError(e.getMessage(), model);
+      return onError("There was an issue revoking access: " + e.getMessage(), model);
     }
   }
 
@@ -210,6 +270,48 @@ public class AuthController {
   public String onError(String errorMessage, Model model) {
     model.addAttribute("error", errorMessage);
     return "error";
+  }
+
+  /** Retrieves stored credentials based on the user id.
+   * @param id the id of the current user
+   * @return User the database entry corresponding to the current user, or null if the user does
+   * not exist in the database.
+   */
+  public User getUser(String id) {
+    if (id != null) {
+      Optional<User> user = userRepository.findById(id);
+      if (user.isPresent()) {
+        return user.get();
+      }
+    }
+    return null;
+  }
+
+  /** Adds or updates a user in the database.
+   * @param credential the credentials object to save or update in the database.
+   * @param userinfo the userinfo object to save or update in the database.
+   * @param session the current session.
+   */
+  public void saveUser(Credential credential, Userinfo userinfo, HttpSession session) {
+    User storedUser = null;
+    if (session != null && session.getAttribute("login_hint") != null) {
+      storedUser = getUser(session.getAttribute("login_hint").toString());
+    }
+
+    if (storedUser != null) {
+      if (userinfo != null) {
+        storedUser.setId(userinfo.getId());
+        storedUser.setEmail(userinfo.getEmail());
+      }
+
+      userRepository.save(storedUser);
+    } else if (credential != null && userinfo != null) {
+      User newUser = new User(
+          userinfo.getId(),
+          userinfo.getEmail()
+      );
+      userRepository.save(newUser);
+    }
   }
 
 }

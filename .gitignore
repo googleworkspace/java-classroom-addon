@@ -1,10 +1,21 @@
-HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 .DS_Store
-secrets/
+
+# Certificate file stored in the top level directory. Update this with the path to your certificate file.
+secrets/*.p12
+
+# The client_secret.json files are configured within each module. Update this if you changed the location of the client secret file.
+step_02_sign_in/src/main/resources/client_secret.json
+step_03_query_parameters/src/main/resources/client_secret.json
+
+# Generated h2 database. Update this if you modified spring.datasource.url path configured in application.properties.
+h2/
+
+# Generated Credential Store. Update this if you modified the path name for the dataDirectory in AuthService.java.
+credentialStore/
 
 ### STS ###
 .apt_generated
