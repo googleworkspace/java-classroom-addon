@@ -10,6 +10,7 @@ secrets/*.p12
 # The client_secret.json files are configured within each module. Update this if you changed the location of the client secret file.
 step_02_sign_in/src/main/resources/client_secret.json
 step_03_query_parameters/src/main/resources/client_secret.json
+step_04_content_type/src/main/resources/client_secret.json
 
 # Generated h2 database. Update this if you modified spring.datasource.url path configured in application.properties.
 h2/

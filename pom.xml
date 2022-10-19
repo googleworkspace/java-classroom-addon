@@ -13,6 +13,7 @@
     <module>step_01_basic_app</module>
     <module>step_02_sign_in</module>
     <module>step_03_query_parameters</module>
+    <module>step_04_content_type</module>
   </modules>
   <groupId>com.addons</groupId>
   <artifactId>spring</artifactId>
@@ -62,6 +63,16 @@
       <artifactId>h2</artifactId>
       <scope>runtime</scope>
     </dependency>
+
+<!--    add the Classroom dependency here if you are managing dependencies using pom.xml -->
+<!--    <dependency>-->
+<!--      <groupId>com.google.api.services</groupId>-->
+<!--      <artifactId>classroom</artifactId>-->
+<!--      <version>1.0</version>-->
+<!--      <scope>system</scope>-->
+<!--      <systemPath>[REPLACE_WITH_PATH_TO_CLIENT_LIB_JAR_FILE]</systemPath>-->
+<!--    </dependency>-->
+
   </dependencies>
   <build>
     <plugins>

@@ -11,7 +11,7 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 // License for the specific language governing permissions and limitations under
 // the License.
-package com.example.step_03_query_parameters;
+package com.example.query_parameters;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.services.oauth2.model.Userinfo;

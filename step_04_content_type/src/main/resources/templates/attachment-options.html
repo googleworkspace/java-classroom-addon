@@ -1,0 +1,65 @@
+<!-- Copyright 2022 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+
+     https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License. -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html" lang="en">
+<head th:replace="fragments :: html_head"/>
+
+<body>
+
+<!-- Navbar fragment -->
+<div class="topnav">
+  <div th:replace="fragments :: navbar"/>
+</div>
+
+<h2>You have reached the attachment selection. Please choose one or more
+attachments below. </h2>
+<div th:align="center">
+  <h3>Select attachment(s):</h3>
+  <form th:method="POST" th:action="@{/create-attachment}" th:object="${attachment}">
+    <table>
+      <tr>
+        <td><img src="images/angkor-wat.jpg" th:width="250" th:height="250"></td>
+        <td><img src="images/eiffel-tower.jpeg" th:width="250" th:height="250"></td>
+        <td><img src="images/himeji-castle.jpeg" th:width="250" th:height="250"></td>
+        <td><img src="images/taj-mahal.jpeg" th:width="250" th:height="250"></td>
+      </tr>
+      <tr>
+        <td>
+          <input type="checkbox" th:align="center" th:id="angkor" th:name="angkor">
+            <p>Angkor Wat</p>
+          </input>
+        </td>
+        <td>
+          <input type="checkbox" th:id="eiffel" th:name="eiffel">
+            <p>Eiffel Tower</p>
+          </input>
+        </td>
+        <td>
+          <input type="checkbox" th:id="himeji" th:name="himeji">
+            <p>Himeji Castle</p>
+          </input>
+        </td>
+        <td>
+          <input type="checkbox" th:id="taj" th:name="taj">
+            <p>Taj Mahal</p>
+          </input>
+        </td>
+      </tr>
+    </table>
+    <button>Create Attachment</button>
+  </form>
+</div>
+</body>
+
+</html>

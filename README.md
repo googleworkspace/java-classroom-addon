@@ -20,7 +20,7 @@ Project Setup
 
 1. Install [Java 11+](https://adoptopenjdk.net/).
 
-2. Create a [Google Cloud Platform (GCP) project](https://console.cloud.google.com/projectcreate).
+2. Create a [Google Cloud project](https://console.cloud.google.com/projectcreate).
 Enable the following in the API Library:
     *   [Google Workspace Marketplace (GWM) SDK](https://console.cloud.google.com/apis/library/appsmarket-component.googleapis.com)
     *   [Google Classroom API](https://console.cloud.google.com/apis/library/classroom.googleapis.com)
@@ -99,7 +99,7 @@ it is not accidentally pushed to a remote repository.
 _Ensure that the path to the client secret file is in the top level directory's `.gitignore` so that you do not accidentally
 push your client secrets to a remote repository._
 3. Updated the `REDIRECT_URI` variable in the `AuthService.java` file to the redirect URI you
-specified in GCP (for example, `https://localhost:5000/callback`).
+specified in your Cloud project (for example, `https://localhost:5000/callback`).
 4. Updated `AuthController.java` `/callback` endpoint to match your redirect URI.
 
 III. Set up the `step_03_query_parameters` walkthrough by ensuring that you have:
@@ -109,7 +109,7 @@ top level directory's `.gitignore` to make sure it is not accidentally pushed to
 _Ensure that the path to the client secret file is in the top level directory's `.gitignore` so that you do not accidentally
 push your client secrets to a remote repository._
 3. Updated the `REDIRECT_URI` variable in the `AuthService.java` file to the redirect URI you
-specified in your GCP OAuth client credentials (for example, `https://localhost:5000/callback`).
+specified in your Cloud project OAuth client credentials (for example, `https://localhost:5000/callback`).
 4. Updated `AuthController.java` `/callback` endpoint to match your redirect URI.
 5. Updated `application.properties` with values for `spring.datasource.username` and `spring.datasource.password`.
 Make sure to update these fields before you run the application. This application uses an H2 database
