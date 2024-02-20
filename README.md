@@ -109,7 +109,7 @@ top level directory's `.gitignore` to make sure it is not accidentally pushed to
 _Ensure that the path to the client secret file is in the top level directory's `.gitignore` so that you do not accidentally
 push your client secrets to a remote repository._
 3. Updated the `REDIRECT_URI` variable in the `AuthService.java` file to the redirect URI you
-specified in GCP (for example, `https://localhost:5000/callback`).
+specified in your GCP OAuth client credentials (for example, `https://localhost:5000/callback`).
 4. Updated `AuthController.java` `/callback` endpoint to match your redirect URI.
 5. Updated `application.properties` with values for `spring.datasource.username` and `spring.datasource.password`.
 Make sure to update these fields before you run the application. This application uses an H2 database

@@ -74,7 +74,7 @@ public class AuthController {
 
   /** Returns the add-on discovery or auth page that will be displayed when the iframe is first
    * opened in Classroom.
-   * @param request the current request used to obtain the login_hint or hd query parameter.
+   * @param request the current request used to obtain the login_hint query parameter.
    * @param session the current session.
    * @param model the Model interface used to display information on the error page.
    * @return the authorization page if the session does not exist or the credentials attribute is
@@ -84,21 +84,12 @@ public class AuthController {
   @GetMapping(value = {"/addon-discovery"})
   public String addon_discovery(HttpServletRequest request, HttpSession session, Model model) {
     try {
-      /** Retrieve the login_hint or hd query parameters from the request URL. */
+      /** Retrieve the login_hint query parameter from the request URL. */
       String login_hint = request.getParameter("login_hint");
-      String hd = request.getParameter("hd");
 
-      /** If neither query parameter is available, use the values in the session. */
-      if (login_hint == null && hd == null) {
+      /** If the query parameter is not available, use the values in the session. */
+      if (login_hint == null) {
         login_hint = (String) session.getAttribute("login_hint");
-        hd = (String) session.getAttribute("hd");
-      }
-
-      /** If the hd query parameter is provided, add hd to the session and route the user to the
-       * authorization page. */
-      else if (hd != null) {
-        session.setAttribute("hd", hd);
-        return startAuthFlow(model);
       }
 
       /** If the login_hint query parameter is provided, add it to the session. */
@@ -145,8 +136,7 @@ public class AuthController {
   public void authorize(HttpServletResponse response, HttpSession session) throws Exception {
     try {
       String login_hint = (String) session.getAttribute("login_hint");
-      String hd = (String) session.getAttribute("hd");
-      HashMap authDataMap = authService.authorize(login_hint, hd);
+      HashMap authDataMap = authService.authorize(login_hint);
       String authUrl = authDataMap.get("url").toString();
       String state = authDataMap.get("state").toString();
       session.setAttribute("state", state);

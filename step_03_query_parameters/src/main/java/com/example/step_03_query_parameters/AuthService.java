@@ -126,11 +126,10 @@ public class AuthService {
    * permission to their account, and the state parameter, which is used to prevent cross site
    * request forgery.
    * @param login_hint query parameter provided by Classroom to facilitate repeated sign-in.
-   * @param hd query parameter provided by Classroom to filter accounts based on domain.
    * @return map with the authorization URL and state parameter.
    * @throws Exception if building the authorization URL is unsuccessful.
    */
-  public HashMap authorize(String login_hint, String hd) throws Exception {
+  public HashMap authorize(String login_hint) throws Exception {
     HashMap<String, String> authDataMap = new HashMap<>();
     try {
       String state = new BigInteger(130, new SecureRandom()).toString(32);
@@ -141,7 +140,6 @@ public class AuthService {
           .newAuthorizationUrl()
           .setState(state)
           .set("login_hint", login_hint)
-          .set("hd", hd)
           .setRedirectUri(REDIRECT_URI)
           .build();
       String url = authUrl;
