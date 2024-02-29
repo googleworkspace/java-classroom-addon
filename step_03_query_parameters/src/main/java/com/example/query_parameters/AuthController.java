@@ -30,17 +30,11 @@ public class AuthController {
   /** Declare AuthService to be used in the Controller class constructor. */
   private final AuthService authService;
 
-  /** Declare UserRepository to be used in the Controller class constructor. */
-  private final UserRepository userRepository;
-
-  /** AuthController constructor. Uses constructor injection to instantiate the AuthService and
-   * UserRepository classes.
+  /** AuthController constructor. Uses constructor injection to instantiate the AuthService class.
    * @param authService the service class that handles the implementation logic of requests.
-   * @param userRepository the class that interacts with User objects stored in persistent storage.
    */
-  public AuthController(AuthService authService, UserRepository userRepository) {
+  public AuthController(AuthService authService) {
     this.authService = authService;
-    this.userRepository = userRepository;
   }
 
   /** Returns the index page that will be displayed when the add-on opens in a new tab.
@@ -109,7 +103,7 @@ public class AuthController {
        * If the credentials in persistent storage are null, we should navigate the user to the
        * authorization flow to obtain persisted credentials.
        */
-      User storedUser = getUser(login_hint);
+      User storedUser = authService.getUser(login_hint);
       if (storedUser != null) {
         Credential credential = authService.loadFromCredentialDataStore(login_hint);
         if (credential != null) {
@@ -173,9 +167,8 @@ public class AuthController {
 
       /** This is the end of the auth flow. We should save user info to the database. */
       Userinfo userinfo = authService.getUserInfo(credentials);
-      saveUser(credentials, userinfo, session);
-
-      return "close-pop-up";
+      authService.saveUser(credentials, userinfo, session.getAttribute("login_hint"));
+      return "close-pop-up-addon-discovery";
     } catch (Exception e) {
       return onError(e.getMessage(), model);
     }
@@ -200,7 +193,7 @@ public class AuthController {
       }
 
       /** Save credentials in case access token was refreshed. */
-      saveUser(credentials, null, session);
+      authService.saveUser(credentials, null, session.getAttribute("login_hint"));
       return "test";
     } catch (Exception e) {
       return onError(e.getMessage(), model);
@@ -235,8 +228,9 @@ public class AuthController {
   public String revoke(HttpSession session, Model model) {
     try {
       if (session != null && session.getAttribute("credentials") != null) {
+        String login_hint = session.getAttribute("login_hint").toString();
         Credential credentials = (Credential) session.getAttribute("credentials");
-        ResponseEntity responseEntity = authService.revokeCredentials(credentials);
+        ResponseEntity responseEntity = authService.revokeCredentials(credentials, login_hint);
         Integer httpStatusCode = responseEntity.getStatusCodeValue();
 
         if (httpStatusCode != 200) {
@@ -261,47 +255,4 @@ public class AuthController {
     model.addAttribute("error", errorMessage);
     return "error";
   }
-
-  /** Retrieves stored credentials based on the user id.
-   * @param id the id of the current user
-   * @return User the database entry corresponding to the current user, or null if the user does
-   * not exist in the database.
-   */
-  public User getUser(String id) {
-    if (id != null) {
-      Optional<User> user = userRepository.findById(id);
-      if (user.isPresent()) {
-        return user.get();
-      }
-    }
-    return null;
-  }
-
-  /** Adds or updates a user in the database.
-   * @param credential the credentials object to save or update in the database.
-   * @param userinfo the userinfo object to save or update in the database.
-   * @param session the current session.
-   */
-  public void saveUser(Credential credential, Userinfo userinfo, HttpSession session) {
-    User storedUser = null;
-    if (session != null && session.getAttribute("login_hint") != null) {
-      storedUser = getUser(session.getAttribute("login_hint").toString());
-    }
-
-    if (storedUser != null) {
-      if (userinfo != null) {
-        storedUser.setId(userinfo.getId());
-        storedUser.setEmail(userinfo.getEmail());
-      }
-
-      userRepository.save(storedUser);
-    } else if (credential != null && userinfo != null) {
-      User newUser = new User(
-          userinfo.getId(),
-          userinfo.getEmail()
-      );
-      userRepository.save(newUser);
-    }
-  }
-
 }

@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Optional;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -64,6 +65,18 @@ public class AuthService {
       "https://www.googleapis.com/auth/classroom.addons.teacher",
       "https://www.googleapis.com/auth/classroom.addons.student"
   };
+
+  /** Declare UserRepository to be used in the class constructor. */
+  private final UserRepository userRepository;
+
+  /** AuthService constructor. Uses constructor injection to instantiate the
+   * UserRepository class.
+   * @param userRepository the class that interacts with User objects stored in
+   * persistent storage.
+   */
+  public AuthService(UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
 
   /** Creates and returns a Collection object with all requested scopes.
    * @return Collection of scopes requested by the application.
@@ -235,7 +248,8 @@ public class AuthService {
    * @return response entity returned from the HTTP call to obtain response information.
    * @throws RestClientException if the POST request to the revoke endpoint is unsuccessful.
    */
-  public ResponseEntity<String> revokeCredentials(Credential credentials) throws RestClientException {
+  public ResponseEntity<String> revokeCredentials(Credential credentials, String login_hint)
+      throws Exception {
     try {
       String accessToken = credentials.getAccessToken();
       String url = "https://oauth2.googleapis.com/revoke?token=" + accessToken;
@@ -246,11 +260,53 @@ public class AuthService {
       ResponseEntity<String> responseEntity = new RestTemplate().exchange(url, HttpMethod.POST,
           httpEntity, String.class);
 
+      GoogleAuthorizationCodeFlow flow = getFlow();
+      flow.getCredentialDataStore().delete(login_hint);
       return responseEntity;
-    } catch (RestClientException e) {
+    } catch (Exception e) {
       e.printStackTrace();
       throw e;
     }
   }
 
+  /** Retrieves the User from the UserRepository.
+   * @param id the id of the current user
+   * @return User the database entry corresponding to the current user, or null if the user does
+   * not exist in the database.
+   */
+  public User getUser(String id) {
+    if (id != null) {
+      Optional<User> user = userRepository.findById(id);
+      if (user.isPresent()) {
+        return user.get();
+      }
+    }
+    return null;
+  }
+
+  /** Adds or updates a user in the database.
+   * @param credential the credentials object to save or update in the database.
+   * @param userinfo the userinfo object to save or update in the database.
+   * @param login_hint the login_hint from the session.
+   */
+  public void saveUser(Credential credential, Userinfo userinfo, Object login_hint) {
+    User storedUser = null;
+    if (login_hint != null) {
+      storedUser = getUser(login_hint.toString());
+    }
+
+    if (storedUser != null) {
+      if (userinfo != null) {
+        storedUser.setId(userinfo.getId());
+        storedUser.setEmail(userinfo.getEmail());
+      }
+      userRepository.save(storedUser);
+    } else if (credential != null && userinfo != null) {
+      User newUser = new User(
+          userinfo.getId(),
+          userinfo.getEmail()
+      );
+      userRepository.save(newUser);
+    }
+  }
 }
