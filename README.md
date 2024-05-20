@@ -8,7 +8,7 @@ Documentation
 -------------
 
 These examples are intended to accompany the guided walkthroughs on the
-[Classroom Add-ons developer site](https://developers.google.com/classroom/eap/add-ons-alpha).
+[Classroom Add-ons developer site](https://developers.google.com/classroom/add-ons).
 Please refer to the site for implementation details.
 
 Requirements
@@ -26,14 +26,15 @@ Enable the following in the API Library:
     *   [Google Classroom API](https://console.cloud.google.com/apis/library/classroom.googleapis.com)
 
     Visit the
-    [developer site](https://developers.google.com/classroom/eap/add-ons-alpha/build-classroom-addon#step_3_google_workspace_marketplace_listing)
+    [developer site](https://developers.google.com/classroom/add-ons/developer-guides/project-configuration#step_3_google_workspace_marketplace_listing)
     for configuration instructions for the GWM SDK. You will also need to
-    [install the add-on](https://developers.google.com/classroom/eap/add-ons-alpha/creating-simple-add-on#visit_the_unlisted_url_for_your_add-on_to_install_it)
+    [install the add-on](https://developers.google.com/classroom/add-ons/walkthroughs/create-an-add-on#visit_the_unlisted_url_for_your_add-on_to_install_it)
     for it to be visible in Google Classroom.
-3. Clone this repository:
+3. Clone this repository and `cd` into the root project directory::
 
      ```posix-terminal
-     git clone https://github.com/<org>/<repo>/
+     git clone https://github.com/googleworkspace/java-classroom-addon
+     cd java-classroom-addon
      ```
 
 4. Visit your project's [Credentials](https://console.cloud.google.com/apis/credentials) page. Create two credentials in the project:
@@ -122,7 +123,7 @@ To run a specific module, run the following command on Unix:
 
    ```posix-terminal
    ./mvnw spring-boot:run -pl <module_name>
-   ``` 
+   ```
 
 or on Windows:
 
@@ -139,14 +140,14 @@ an Assignment in [Google Classroom](https://classroom.google.com).
 Useful Resources
 -------------
 
-<!-- *   [Issue tracker](https://github.com/<org>/<repo>/issues) -->
-*   [Add-ons Guide](https://developers.google.com/classroom/eap/add-ons-alpha)
-*   [Add-ons Reference](https://developers.google.com/classroom/eap/add-ons-alpha/reference/rest)
+*   [Issue tracker](https://github.com/googleworkspace/python-classroom-addon/issues)
+*   [Add-ons Guide](https://developers.google.com/classroom/add-ons)
+*   [Classroom API REST Reference](https://developers.google.com/classroom/reference/rest)
 *   [Using OAuth 2.0 for Web Server Applications](https://developers.google.com/identity/protocols/oauth2/web-server#creatingclient)
 *   [OAuth 2.0 Scopes](https://developers.google.com/identity/protocols/oauth2/scopes)
-*   [Google Classroom Discovery API](https://googleapis.github.io/google-api-Java-client/docs/dyn/classroom_v1.html)
-*   [Google OAuth2 Discovery API](https://googleapis.github.io/google-api-Java-client/docs/dyn/oauth2_v2.html)
-*   [Classroom API Support](https://developers.google.com/classroom/eap/add-ons-alpha/support)
+*   [Google Classroom Discovery API](https://googleapis.github.io/google-api-python-client/docs/dyn/classroom_v1.html)
+*   [Google OAuth2 Discovery API](https://googleapis.github.io/google-api-python-client/docs/dyn/oauth2_v2.html)
+*   [Classroom API Support](https://developers.google.com/classroom/support)
 
 Authors
 -------
